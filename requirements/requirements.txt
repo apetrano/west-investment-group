@@ -24,7 +24,7 @@ entrypoints==0.4
 fastjsonschema==2.16.3
 fonttools==4.38.0
 fqdn==1.5.1
-frozendict==2.3.6
+frozendict==2.3.7
 html5lib==1.1
 idna==3.4
 importlib-metadata==6.1.0
