@@ -43,6 +43,7 @@ def getTickerDailyDataSLOW(client, ticker="IBM", start="2023-01-01", end="2023-0
     return pd.DataFrame(data, columns=['date', 'open', 'close', 'high', 'low', 'ticker'])
 
 def get_ticker_data(args):
+    sys.path.append('../src/')
     client, ticker, date = args
     try:
         response = client.stocks_equities_daily_open_close(symbol=ticker, date=str(date)[0:10])
