@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from polygon import RESTClient
 import ray
 from ray.util.multiprocessing import Pool
+import boto3
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 def getTickerDailyDataSLOW(client, ticker="IBM", start="2023-01-01", end="2023-02-01"):
