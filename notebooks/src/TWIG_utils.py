@@ -19,6 +19,12 @@ def write_csv_s3(data, bucket, file_name):
     print('done')
     return 
 
+def read_csv_s3(bucket, file_name):
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket=bucket, Key=file_name)
+    df = pd.read_csv(response['Body'])
+    return df
+
 def getTickerDailyDataSLOW(client, ticker="IBM", start="2023-01-01", end="2023-02-01"):
     print(f'Starting data pull for {ticker}...')
     data = []
