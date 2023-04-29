@@ -8,6 +8,17 @@ from ray.util.multiprocessing import Pool
 import boto3
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
+
+def write_csv_s3(data, bucket, file_name):
+    s3 = boto3.client('s3')
+    data.to_csv(file_name)
+    
+    with open(file_name, "rb") as f:
+        s3.upload_fileobj(f, bucket, file_name)
+    os.remove(file_name)
+    print('done')
+    return 
+
 def getTickerDailyDataSLOW(client, ticker="IBM", start="2023-01-01", end="2023-02-01"):
     print(f'Starting data pull for {ticker}...')
     data = []
