@@ -1,13 +1,11 @@
 import pandas as pd
 import numpy as np
 import requests
-from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 from polygon import RESTClient
 import ray
 from ray.util.multiprocessing import Pool
 import boto3
-import sys
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 
@@ -29,7 +27,6 @@ def read_csv_s3(bucket, file_name):
 
 def getTickerDailyDataSLOW(client, ticker="IBM", start="2023-01-01", end="2023-02-01"):
     print(f'Starting data pull for {ticker}...')
-    sys.path.append('../src/')
     data = []
     date_range = pd.date_range(start, end, freq='B')
 
@@ -44,7 +41,6 @@ def getTickerDailyDataSLOW(client, ticker="IBM", start="2023-01-01", end="2023-0
     return pd.DataFrame(data, columns=['date', 'open', 'close', 'high', 'low', 'ticker'])
 
 def get_ticker_data(args):
-    sys.path.append('../src/')
     client, ticker, date = args
     try:
         response = client.stocks_equities_daily_open_close(symbol=ticker, date=str(date)[0:10])
@@ -70,8 +66,8 @@ def get_ticker_daily_data(client, ticker="IBM", start="2023-01-01", end="2023-02
   
     return pd.DataFrame(data, columns=['date', 'open', 'close', 'high', 'low', 'ticker'])
 
-def get_ticker_news(ticker, api_key, date):
-    url = f"https://api.polygon.io/v2/reference/news?ticker={ticker}&published_utc={date}&apiKey={api_key}"
+def get_ticker_news(ticker, api_key):
+    url = f"https://api.polygon.io/v2/reference/news?ticker={ticker}&apiKey={api_key}"
     response = requests.get(url)
 
     if response.status_code != 200:
@@ -79,29 +75,7 @@ def get_ticker_news(ticker, api_key, date):
     else:
         news_items = response.json()['results']
 
-    news = pd.DataFrame(news_items)
-   
-    articles = []
-    for n in range(len(news)):
-        r1 = requests.get(news['article_url'][n])
-        r1.status_code
-        coverpage = r1.content
-
-        soup1 = BeautifulSoup(coverpage, 'html5lib')
-            
-        coverpage_news = soup1.find_all('p')
-        article = [p.get_text() for p in coverpage_news]
-        articles.append(' '.join(article))
-       
-    df = pd.DataFrame({'Titles': news['title'], 
-                       'Description': news['description'], 
-                       'Articles': articles, 
-                       'Published': news['published_utc'], 
-                       'Source': news['author'], 
-                       'URL': news['article_url'],
-                       'Tickers': news['tickers']
-                      })
-    return(df)
+    return pd.DataFrame(news_items)
 
 def createPlot(xvalue, yvalue, xlabel, ylabel, title, xvalue2=np.empty(0), yvalue2=np.empty(0)):
     fig, ax = plt.subplots()
@@ -109,7 +83,7 @@ def createPlot(xvalue, yvalue, xlabel, ylabel, title, xvalue2=np.empty(0), yvalu
     if xvalue2.size > 0:
         ax.plot(xvalue2, yvalue2)
 
-    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+    ax.set(xlabel=pd.todatetime(xlabel), ylabel=ylabel, title=title)
    
         
     for tick in ax.get_xticklabels():

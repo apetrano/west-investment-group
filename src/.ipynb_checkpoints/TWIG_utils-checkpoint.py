@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import requests
-from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 from polygon import RESTClient
 import ray
@@ -79,29 +78,7 @@ def get_ticker_news(ticker, api_key, date):
     else:
         news_items = response.json()['results']
 
-    news = pd.DataFrame(news_items)
-   
-    articles = []
-    for n in range(len(news)):
-        r1 = requests.get(news['article_url'][n])
-        r1.status_code
-        coverpage = r1.content
-
-        soup1 = BeautifulSoup(coverpage, 'html5lib')
-            
-        coverpage_news = soup1.find_all('p')
-        article = [p.get_text() for p in coverpage_news]
-        articles.append(' '.join(article))
-       
-    df = pd.DataFrame({'Titles': news['title'], 
-                       'Description': news['description'], 
-                       'Articles': articles, 
-                       'Published': news['published_utc'], 
-                       'Source': news['author'], 
-                       'URL': news['article_url'],
-                       'Tickers': news['tickers']
-                      })
-    return(df)
+    return pd.DataFrame(news_items)
 
 def createPlot(xvalue, yvalue, xlabel, ylabel, title, xvalue2=np.empty(0), yvalue2=np.empty(0)):
     fig, ax = plt.subplots()
@@ -109,7 +86,7 @@ def createPlot(xvalue, yvalue, xlabel, ylabel, title, xvalue2=np.empty(0), yvalu
     if xvalue2.size > 0:
         ax.plot(xvalue2, yvalue2)
 
-    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+    ax.set(xlabel=pd.todatetime(xlabel), ylabel=ylabel, title=title)
    
         
     for tick in ax.get_xticklabels():
